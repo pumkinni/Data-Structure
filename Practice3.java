@@ -1,56 +1,45 @@
-// Practice3
-// 주어진 BST 에서 두 노드의 합이 target 값이 되는 경우가 있는지 확인하세요.
-// 있으면 true, 없으면 false 반환
+// 입력: 3 0 -2 -5 9 6 -11, 20, -30
+// 삭제 횟수: 1
+// 출력: 20, -11 9 6 -5 3 -2 0
 
-// 입력 트리: 5, 3, 6, 2, 4, null, 7
-// 결과: true
-
-// 입력 트리: 5,3,6,2,4,null,7
-// 결과: false
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
+// 최소힙 자료구조에 값을 추가하고 n번 삭제 후 모든 값들을 절댓값으로 바꾸어 새로운 최대힙 자료구조에 넣는다.
+// 내림차순으로 정렬하여 출력할 때 원래 배열에 있던 숫자면 그대로 출력, 없으면 음수로 출력한다.
 public class Practice3 {
-    public static void solution(Integer[] data, int target) {
-        BinarySearchTree bst = new BinarySearchTree();
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] == null){
-                continue;
+    public static void solution(int[] nums, int deleteCnt) {
+        MinHeap minHeap = new MinHeap();
+        MaxHeap maxHeap = new MaxHeap();
+        ArrayList list = new ArrayList();
+        for (int num: nums) {
+            minHeap.insert(num);
+        }
+        for (int i = 0; i < deleteCnt; i++) {
+            minHeap.delete();
+        }
+        while (minHeap.heap.size() != 1){
+            int data = minHeap.delete();
+            maxHeap.insert(Math.abs(data));
+            list.add(data);
+        }
+        while (maxHeap.heap.size() != 1){
+            int data = maxHeap.delete();
+            if (list.contains(data)){
+                System.out.print(data + " ");
+            }else {
+                System.out.print(-data + " ");
             }
-            bst.addNode(data[i]);
         }
-
-        ArrayList<Integer> list = new ArrayList<>();
-        System.out.println(inOrder(list, bst.head, target));
-    }
-
-    public static Boolean inOrder(ArrayList<Integer> list, Node node,int target){
-        if (node == null){
-            return false;
-        }
-        if (list.contains(target - node.key)){
-            return true;
-        }
-
-        if (inOrder(list, node.left, target)){
-            return true;
-        }
-
-        list.add(node.key);
-
-        if(inOrder(list, node.right, target)) {
-            return true;
-        }
-        return false;
+        System.out.println();
     }
 
     public static void main(String[] args) {
-        Integer[] data = {5, 3, 6, 2, 4, null, 7};
-        int target = 9;
-        solution(data, target);
-
-        data = new Integer[]{5,3,6,2,4,null,7};
-        target = 28;
-        solution(data, target);
+        // Test code
+        int nums[] = {3, 0, -2, -5, 9, 6, -11, 20, -30};
+        int deleteCnt = 1;
+        solution(nums, deleteCnt);
     }
 }
