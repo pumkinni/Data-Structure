@@ -1,65 +1,58 @@
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Practice3 {
-    public static ArrayList<ArrayList<String>> solution(ArrayList<ArrayList<String>> accounts) {
-        Map<String , ArrayList<ArrayList<String>>> map = new HashMap<>();
+    public static boolean solution(int[] target) {
+        int[] nums = new int[target.length];
 
-        for (ArrayList<String> account : accounts){
-            String name = account.remove(0);
+        Arrays.sort(target);
 
-            if (map.containsKey(name)){
-                boolean isSame = false;
+        String tar = Arrays.toString(target);
 
-                for (int i = 0; i < map.get(name).size(); i++) {
-                    ArrayList<String> email = map.get(name).get(i);
-
-                    for (String e :email){
-                        if (account.contains(e)){
-                            isSame = true;
-                            break;
-                        }
-                    }
-                    if (isSame){
-                        for (String em : account){
-                            if (!email.contains(em)){
-                                map.get(name).get(i).add(em);
-                            }
-                        }
-                        break;
-                    }
-                }
-                if (!isSame){
-                    map.get(name).add(account);
-                }
-
-            } else {
-                map.put(name, new ArrayList());
-                map.get(name).add(account);
-            }
+        for (int i = 0; i < target.length; i++) {
+            nums[i] = 1;
         }
 
-        ArrayList<ArrayList<String>> result = new ArrayList<>();
+        Queue<int[]> queue = new LinkedList<>();
 
-        for (Map.Entry<String, ArrayList<ArrayList<String>>> accs : map.entrySet()){
-            for (ArrayList<String> ac : accs.getValue()) {
-                ac.add(0, accs.getKey());
-                result.add(ac);
+        queue.add(nums);
+
+
+        while (!queue.isEmpty()){
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                int[] cur = queue.poll().clone();
+                String c = Arrays.toString(cur);
+                if (c.equals(tar)){
+                    return true;
+                }
+                int sum = Arrays.stream(cur).sum();
+
+                for (int j = 0; j < cur.length; j++) {
+                    if (cur[j] < target[j]){
+                        int num = cur[j];
+                        cur[j] = sum;
+                        queue.add(cur.clone());
+                        cur[j] = num;
+                    }
+                }
             }
         }
-
-        return result;
+        return false;
     }
+
+
 
     public static void main(String[] args) {
         // Test code
-        ArrayList<ArrayList<String>> accounts = new ArrayList<>();
-        accounts.add(new ArrayList<>(Arrays.asList("John", "john@mail.com", "john_lab@mail.com")));
-        accounts.add(new ArrayList<>(Arrays.asList("John", "john@mail.com", "john02@mail.com")));
-        accounts.add(new ArrayList<>(Arrays.asList("Mary", "mary@mail.com")));
-        accounts.add(new ArrayList<>(Arrays.asList("John", "johnnybravo@mail.com")));
-        accounts = solution(accounts);
-        for (ArrayList<String> item: accounts) {
-            System.out.println(item);
-        }
+        int[] target = {9, 3, 5};
+        System.out.println(solution(target));
+
+        target = new int[]{8, 5};
+        System.out.println(solution(target));
+
+        target = new int[]{1, 1, 1, 2};
+        System.out.println(solution(target));
     }
 }
