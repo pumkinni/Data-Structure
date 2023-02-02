@@ -1,108 +1,73 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-
-class Node {
-    HashMap<Character, Node> child;
-    boolean isTerminal;
-
-    public Node() {
-        this.child = new HashMap<>();
-        this.isTerminal = false;
-    }
-}
-
-class Trie {
-    Node root;
-
-    public Trie() {
-        this.root = new Node();
-    }
-
-    public void insert(String str) {
-        Node cur = this.root;
-
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
-
-            cur.child.putIfAbsent(c, new Node());
-            cur = cur.child.get(c);
-
-            if (i == str.length() - 1) {
-                cur.isTerminal = true;
-                return;
-            }
-        }
-    }
-
-    public boolean search(String str) {
-        Node cur = this.root;
-
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
-
-            if (cur.child.containsKey(c)) {
-                cur = cur.child.get(c);
-            } else {
-                return false;
-            }
-
-            if (i == str.length() - 1) {
-                if (!cur.isTerminal) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-}
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Set;
 
 public class Practice5 {
-    public static ArrayList<Boolean> solution(String[] queries, String pattern) {
-        // 트라이로 각 문자를 비교해 나가면서 소문자면 넘어감 / 대문자면 탈락
+    private static class Node{
+        int num;
+        boolean isMinus;
 
-        Trie trie = new Trie();
-        trie.insert(pattern);
+        public Node(int num, boolean isMinus) {
+            this.num = num;
+            this.isMinus = isMinus;
+        }
+    }
+    public static int solution(int[] forbidden, int a, int b, int x) {
 
-        ArrayList<Boolean> result = new ArrayList<Boolean>();
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(new Node(0, false));
 
-        for (String str : queries){
-            Node cur = trie.root;
+        int cnt = 0;
+        Set<Integer> visited = new HashSet<>();
 
-            boolean re = true;
-
-            for (int i = 0; i < str.length(); i++) {
-                char c = str.charAt(i);
-                if (cur.child.containsKey(c)){
-                    cur = cur.child.get(c);
-                } else {
-                    if (c <= 'z' && c >= 'a'){
-                        continue;
-                    } else {
-                        re = false;
-                        break;
-                    }
-                }
-            }
-            if (!cur.isTerminal){
-                re = false;
-            }
-            result.add(re);
+        for (int i : forbidden){
+            visited.add(i);
         }
 
+        while (!queue.isEmpty()){
+            int size = queue.size();
 
-        return result;
+            for (int i = 0; i < size; i++) {
+                Node cur = queue.poll();
+
+                if (cur.num < 0){
+                    continue;
+                }
+
+                if (visited.contains(cur.num)){
+                    continue;
+                }
+
+                if (cur.num == x){
+                    return cnt;
+                }
+
+                if (cur.num - 2*b > x ){
+                    continue;
+                }
+
+                if (cur.isMinus){
+                    queue.add(new Node(cur.num + a, false));
+                } else {
+                    queue.add(new Node(cur.num + a, false));
+                    queue.add(new Node(cur.num - b, true));
+                }
+            }
+            cnt ++;
+        }
+        return -1;
     }
 
     public static void main(String[] args) {
         // Test code
-        String[] queries = {"FooBar", "FooBarTest", "FootBall", "FrameBuffer", "ForceFeedBack"};
-        String pattern = "FB";
-        System.out.println(solution(queries, pattern));
+        int[] forbidden = {14, 4, 18, 1, 15};
+        System.out.println(solution(forbidden, 3, 15, 9));
 
-        pattern = "FoBa";
-        System.out.println(solution(queries, pattern));
+        forbidden = new int[]{8, 3, 16, 6, 12, 20};
+        System.out.println(solution(forbidden, 15, 13, 11));
 
-        pattern = "FoBaT";
-        System.out.println(solution(queries, pattern));
+        forbidden = new int[]{1, 6, 2, 14, 5, 17, 4};
+        System.out.println(solution(forbidden, 16, 9, 7));
     }
 }

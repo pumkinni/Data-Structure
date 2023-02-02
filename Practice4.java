@@ -1,54 +1,71 @@
 import java.util.*;
 
 public class Practice4 {
-    public static int solution(int n, int[] speed, int[] efficiency, int k) {
+    static int min = Integer.MAX_VALUE;
+    public static int solution(String[] deadends, String target) {
 
-        // value : speed, key : efficiency
-        HashMap<Integer, Integer> map = new HashMap<>();
-        for (int i = 0; i < speed.length; i++) {
-            map.put(efficiency[i], speed[i]);
+        if (target.length() != 4 || target == null){
+            return -1;
         }
 
-        System.out.println(map);
+        Queue<String> queue = new LinkedList<>();
+        queue.add("0000");
 
+        HashSet<String> visited = new HashSet<>(Arrays.asList(deadends));
 
-        List<Integer> list = new LinkedList<>();
-        Arrays.stream(speed).boxed().mapToInt(i -> i).forEach(i -> list.add(i));
+        int cnt = 0;
 
-        Collections.sort(list, Collections.reverseOrder());
-        System.out.println(list);
+        while (!queue.isEmpty()){
+            int size = queue.size();
+            // 지금까지의 큐 데이터에서 추출
+            for (int i = 0; i < size; i++) {
+                String cur = queue.poll();
 
+                if (target.equals(cur)){
+                    return cnt;
+                }
 
+                if (visited.contains(cur)){
+                    continue;
+                }
 
-
-        Arrays.sort(efficiency);
-
-        int max = Integer.MIN_VALUE;
-
-        for (int i = 0; i < n - k + 1; i++) {
-            int eff = efficiency[i];
-            int sum = map.get(eff);
-            list.remove(Integer.valueOf(sum));
-            System.out.println(list.size());
-            for (int j = 0; j < k-1; j++) {
-                sum += list.get(j);
+                for (String s: findNext(cur.toCharArray())){
+                    if (!visited.contains(s)) {
+                        queue.add(s);
+                    }
+                }
             }
-            max = Math.max(max, sum * eff);
+            cnt ++;
+
+        }
+        return -1;
+    }
+
+    public static ArrayList<String> findNext(char[] nums){
+        ArrayList<String> list = new ArrayList<>();
+        char[] cur = nums.clone();
+
+        for (int i = 0; i < nums.length; i++) {
+            char c = cur[i];
+            cur[i] = c == '9' ? '0' : (char)((int)c + 1);
+            list.add(String.valueOf(cur));
+            cur[i] = c;
+
+            cur[i] = c == '0' ? '9' : (char)((int)c - 1);
+            list.add(String.valueOf(cur));
+            cur[i] = c;
         }
 
-        return max;
+        return list;
     }
 
     public static void main(String[] args) {
         // Test code
-        int[] speed = {2, 10, 3, 1, 5, 8};
-        int[] efficiency = {5, 4, 3, 9, 7, 2};
-        System.out.println(solution(6, speed, efficiency, 2));
-        speed = new int[]{2, 10, 3, 1, 5, 8};
-        efficiency = new int[]{5, 4, 3, 9, 7, 2};
-        System.out.println(solution(6, speed, efficiency, 3));
-        speed = new int[]{2, 10, 3, 1, 5, 8};
-        efficiency = new int[]{5, 4, 3, 9, 7, 2};
-        System.out.println(solution(6, speed, efficiency, 4));
+        String[] deadends = {"0201", "0101", "0102", "1212", "2002"};
+        System.out.println(solution(deadends, "0202"));
+
+        deadends = new String[] {"8888"};
+        System.out.println(solution(deadends, "0009"));
+
     }
 }

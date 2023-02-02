@@ -1,39 +1,53 @@
-import java.util.HashMap;
-import java.util.Map;
-import java.util.PriorityQueue;
 
 public class Practice1 {
-    public static int solution(int[][] times, int targetFriend) {
-        PriorityQueue<Integer> chair = new PriorityQueue<>();
-        for (int i = 0; i < times.length; i++) {
-            chair.add(i);
-        }
 
-        // 사람과 의자 정보
-        Map<Integer, Integer> map = new HashMap<>();
-        int time = 0;
-        while (true){
-            for (int i = 0; i < times.length; i++) {
-                if (times[i][0] == time){
-                    if (i == targetFriend){
-                        return chair.poll();
+    static int[][] direct = new int[][]{{0, -1}, {1, 0}, {0, 1}, {-1, 0}};
+
+    public static boolean solution(char[][] board, String word) {
+
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                boolean[][] visited = new boolean[board.length][board[0].length];
+                if (board[i][j] == word.charAt(0)){
+                    if (findNext(board, word, j, i, 0, visited)){
+                        return true;
                     }
-                    map.put(i, chair.poll());
-                }
-                if (times[i][1] == time){
-                    chair.offer(map.get(i));
                 }
             }
-            time ++;
         }
+        return false;
+    }
+
+    public static boolean findNext(char[][] board, String word, int x, int y, int idx, boolean[][] visited){
+        if (idx == word.length()){
+            return true;
+        }
+        if (x >= board[0].length || x < 0 || y >= board.length || y < 0 || visited[y][x] == true){
+            return false;
+        }
+
+        if (board[y][x] != word.charAt(idx)){
+            return false;
+        }
+
+        visited[y][x] = true;
+
+        for (int[] dir : direct){
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+            if (findNext(board, word, newX, newY, idx + 1, visited)){
+                return true;
+            }
+        }
+        visited[y][x] = false;
+        return false;
     }
 
     public static void main(String[] args) {
         // Test code
-        int[][] times = {{1, 4}, {2, 3}, {4, 6}};
-        System.out.println(solution(times, 1)); // 1
-
-        times = new int[][]{{3, 10}, {1, 5}, {2, 6}};
-        System.out.println(solution(times, 0)); // 2
+        char[][] board = {{'A', 'B', 'C', 'E'}, {'S', 'F', 'C', 'S'}, {'A', 'D', 'E', 'E'}};
+        System.out.println(solution(board, "ABCCED"));
+        System.out.println(solution(board, "SEE"));
+        System.out.println(solution(board, "ABCB"));
     }
 }
